@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from bs4 import BeautifulSoup
+import re
 
 app = Flask(__name__)
 
@@ -15,8 +16,13 @@ def extract_company_names():
     # Parse the HTML using BeautifulSoup
     soup = BeautifulSoup(html_code, 'html.parser')
 
-    # Extract company names that are in the specific div class 'x_x_lead-name'
-    company_names = [tag.get_text(strip=True) for tag in soup.find_all('div', class_='x_x_lead-name')]
+    # Extract all text from the HTML
+    text = soup.get_text()
+
+    # Use a regex pattern to match likely company names (example based on given data)
+    # The assumption is company names will follow a pattern like:
+    # Opendns, LLC, Provector.pl, etc.
+    company_names = re.findall(r'\b[A-Za-z\s,\.]+(?:LLC|Group|pl|I|Company|Apartments|Development)\b', text)
 
     # Return the extracted company names as JSON
     return jsonify({'company_names': company_names})
